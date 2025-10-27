@@ -50,10 +50,22 @@ The app demonstrates video playback functionality with a text overlay, optimized
 | Desktop | ⚙️ | Experimental support |
 
 <p align="center">
-  <img src="android.png" width="22%"/>
-  <img src="android_tv.png" width="22%"/>
-  <img src="ios.png" width="22%"/>
-  <img src="web.png" width="22%"/>
+  <figure>
+    <img src="android.png" width="22%"/>
+    <figcaption><b>Android Phone</b></figcaption>
+  </figure>
+  <figure>
+    <img src="android_tv.png" width="22%"/>
+    <figcaption><b>Android TV</b></figcaption>
+  </figure>
+  <figure>
+    <img src="ios.png" width="22%"/>
+    <figcaption><b>iOS</b></figcaption>
+  </figure>
+  <figure>
+    <img src="web.png" width="22%"/>
+    <figcaption><b>Web</b></figcaption>
+  </figure>
 </p>
 
 ---
