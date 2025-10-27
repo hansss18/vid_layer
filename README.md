@@ -6,6 +6,13 @@ The app demonstrates video playback functionality with a text overlay, optimized
 
 ---
 
+## 🧱 Tech Stack
+
+- **Flutter**: 3.35.6  
+- **Dart**: 3.9.2  
+
+---
+
 ## ✨ Features
 
 - 🎥 **Video Playback**
@@ -42,18 +49,25 @@ The app demonstrates video playback functionality with a text overlay, optimized
 | Web | ✅ | Responsive layout |
 | Desktop | ⚙️ | Experimental support |
 
+<p align="center">
+  <img src="android.png" width="22%"/>
+  <img src="android_tv.png" width="22%"/>
+  <img src="ios.png" width="22%"/>
+  <img src="web.png" width="22%"/>
+</p>
+
 ---
 
 ## ⚙️ Installation
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/flutter-video-test.git
+   git clone https://github.com/hansss18/vid_layer.git
    ```
 
 2. Navigate into the project directory:
    ```bash
-   cd flutter-video-test
+   cd vid_layer
    ```
 
 3. Get the required dependencies:
@@ -72,18 +86,27 @@ The app demonstrates video playback functionality with a text overlay, optimized
 
 ```
 lib/
-├── main.dart
-├── views/
-│   ├── sections/
-│   │   ├── floating_panel_section.dart
-│   │   └── video_section.dart
-│   └── home_screen.dart
+├── gen/
+│   └── assets.gen.dart
+├── models/
+│   └── home_config/
+│       ├── home_config_model.dart
+│       └── home_config_model.freezed.dart
 ├── states/
+│   ├── actions/
 │   └── stores/
 │       └── home_config/
-│           └── home_config_notifier.dart
-└── widgets/
-    └── common/
+│           ├── home_config_notifier.dart
+│           └── home_config_notifier.g.dart
+├── views/
+│   ├── screens/
+│   │   └── home_screen.dart
+│   └── sections/
+│       ├── color_picker_dialog_section.dart
+│       ├── floating_panel_section.dart
+│       └── video_url_dialog_section.dart
+├── app_theme.dart
+└── main.dart
 ```
 
 ---

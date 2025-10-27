@@ -1,12 +1,12 @@
-import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pip/pip.dart';
+import 'package:video_player/video_player.dart';
 import 'package:vid_layer/states/stores/home_config/home_config_notifier.dart';
 import 'package:vid_layer/views/sections/floating_panel_section.dart';
 import 'package:vid_layer/views/sections/video_url_dialog_section.dart';
-import 'package:video_player/video_player.dart';
 import 'package:vid_layer/gen/assets.gen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -21,39 +21,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   late VideoPlayerController _controller;
   final TextEditingController _textController = TextEditingController();
   final TextEditingController _videoUrlController = TextEditingController();
-  late Pip _pip;
+  Pip? _pip;
 
   Future<void> _initVideo({String? url}) async {
     final config = ref.read(homeConfigProvider);
-    _controller = config.useNetworkVideo && url != null
-        ? VideoPlayerController.networkUrl(Uri.parse(url))
-        : VideoPlayerController.asset(Assets.videos.countdown);
+
+    if (kIsWeb) {
+      // Pada web hanya bisa pakai network URL
+      _controller = VideoPlayerController.networkUrl(
+        Uri.parse(
+          url ??
+              'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+        ),
+      );
+    } else {
+      _controller = config.useNetworkVideo && url != null
+          ? VideoPlayerController.networkUrl(Uri.parse(url))
+          : VideoPlayerController.asset(Assets.videos.countdown);
+    }
 
     await _controller.initialize();
     _controller
       ..setLooping(true)
       ..play();
-
     setState(() {});
   }
 
   Future<void> _initPip() async {
-    _pip = Pip();
+    if (kIsWeb) return; // Web tidak mendukung PiP package ini
 
-    bool isSupported = await _pip.isSupported();
-    if (!isSupported) {
-      return;
-    }
+    _pip = Pip();
+    bool isSupported = await _pip!.isSupported();
+    if (!isSupported) return;
 
     PipOptions options;
-    if (Platform.isAndroid) {
-      options = PipOptions(
+    if (Theme.of(context).platform == TargetPlatform.android) {
+      options = const PipOptions(
         autoEnterEnabled: true,
         aspectRatioX: 16,
         aspectRatioY: 9,
       );
-    } else if (Platform.isIOS) {
-      options = PipOptions(
+    } else if (Theme.of(context).platform == TargetPlatform.iOS) {
+      options = const PipOptions(
         autoEnterEnabled: true,
         contentView: 1,
         sourceContentView: 0,
@@ -65,19 +74,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       return;
     }
 
-    await _pip.setup(options);
-
-    await _pip.registerStateChangedObserver(
+    await _pip!.setup(options);
+    await _pip!.registerStateChangedObserver(
       PipStateChangedObserver(
         onPipStateChanged: (state, error) {
-          switch (state) {
-            case PipState.pipStateStarted:
-              break;
-            case PipState.pipStateStopped:
-              break;
-            case PipState.pipStateFailed:
-              break;
-          }
+          debugPrint('PiP state: $state');
         },
       ),
     );
@@ -112,11 +113,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    if (Platform.isIOS) {
+    if (!kIsWeb && Theme.of(context).platform == TargetPlatform.iOS) {
       if (state == AppLifecycleState.inactive) {
-        _pip.start();
+        _pip?.start();
       } else if (state == AppLifecycleState.resumed) {
-        _pip.stop();
+        _pip?.stop();
       }
     }
   }
@@ -124,8 +125,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _pip.unregisterStateChangedObserver();
-    _pip.dispose();
+    _pip?.unregisterStateChangedObserver();
+    _pip?.dispose();
     _controller.dispose();
     _textController.dispose();
     _videoUrlController.dispose();
@@ -138,7 +139,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final notifier = ref.read(homeConfigProvider.notifier);
 
     final orientation = MediaQuery.of(context).orientation;
-
     if (config.lastOrientation != orientation) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifier.updateOrientation(orientation);
